@@ -93,6 +93,33 @@ header{min-height:62px;padding:9px 14px;display:flex;align-items:center;justify-
   .btn{font-size:14px;padding:8px 9px}
   .search input{width:38vw;padding:8px 10px}
 }
+
+/* V2.3 child reading mode */
+body.child-mode header,
+body.child-mode .sidebar,
+body.child-mode .topbar,
+body.child-mode .nav,
+body.child-mode .hint,
+body.child-mode .counter {display:none !important;}
+body.child-mode .content,
+body.child-mode .stage,
+body.child-mode .workspace,
+body.child-mode .scroller {height:100%;display:block;padding:0;}
+body.child-mode .viewer {width:100%;height:100%;border-radius:0;box-shadow:none;}
+body.child-mode .media {height:82%;}
+body.child-mode .label {height:18%;}
+.ripple-guide{
+ position:absolute;width:70px;height:70px;border-radius:50%;
+ border:2px solid rgba(70,120,255,.2);
+ pointer-events:none;
+ animation:ripplePulse 3s ease-out infinite;
+}
+@keyframes ripplePulse{
+ 0%{transform:scale(.4);opacity:.8}
+ 100%{transform:scale(1.5);opacity:0}
+}
+.media img,.media video{transition:opacity .2s ease;}
+.fade-hidden{opacity:0;}
 </style>
 </head>
 <body>
@@ -100,7 +127,7 @@ header{min-height:62px;padding:9px 14px;display:flex;align-items:center;justify-
 <header>
   <div class="brand"><strong>认知世界</strong><span id="totalText">0 个素材</span></div>
   <div class="actions">
-    <button class="btn" id="modeBtn">家长模式</button>
+    <button class="btn" id="childBtn">儿童全屏</button><button class="btn" id="modeBtn">家长模式</button>
     <button class="btn primary" id="syncBtn">同步素材</button>
   </div>
 </header>
@@ -304,7 +331,7 @@ function renderCard(){
  media.appendChild(img);
  document.getElementById('itemName').textContent=it.name;
  document.getElementById('itemAlias').textContent=it.alias||'';
- counter.textContent=`${idx+1} / ${groupItems.length}`;
+ counter.textContent=`${idx+1} / ${groupItems.length}`; setTimeout(showRipple,1000);
 }
 function playCurrent(){
  if(!groupItems.length) return;
@@ -357,7 +384,28 @@ function renderGrid(){
  }
 }
 
+
+function setChildMode(on){
+ document.body.classList.toggle('child-mode', on);
+ document.getElementById('childBtn').textContent = on ? '退出全屏' : '儿童全屏';
+}
+document.getElementById('childBtn').onclick=()=>setChildMode(!document.body.classList.contains('child-mode'));
+
+function showRipple(){
+ if(!document.body.classList.contains('child-mode')) return;
+ const viewer=document.getElementById('viewer');
+ const old=viewer.querySelector('.ripple-guide');
+ if(old) old.remove();
+ const r=document.createElement('div');
+ r.className='ripple-guide';
+ r.style.left='50%';
+ r.style.top='45%';
+ viewer.appendChild(r);
+ setTimeout(()=>r.remove(),3000);
+}
+
 const drawer=document.getElementById('syncDrawer'), picker=document.getElementById('folderPicker');
+
 document.getElementById('syncBtn').onclick=()=>drawer.classList.add('show');
 document.getElementById('closeDrawer').onclick=()=>drawer.classList.remove('show');
 document.getElementById('chooseFolder').onclick=()=>picker.click();
